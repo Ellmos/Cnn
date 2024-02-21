@@ -16,7 +16,6 @@ $(BINARY): $(OBJ) $(LIBS)
 include libs.mk
 
 clean: 
-	$(MAKE) -C matrix clean 
 	$(MAKE) -C layer clean 
 	$(MAKE) -C neural clean 
 	$(RM) $(OBJ)

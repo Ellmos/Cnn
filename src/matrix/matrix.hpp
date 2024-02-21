@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -8,7 +9,6 @@
 template <typename T>
 class Matrix
 {
-    // ChatGPT dark magic to check if T is of type matrix :)
     template <typename U>
     struct is_matrix : std::false_type
     {};
@@ -36,6 +36,8 @@ public:
         data = std::vector<std::vector<T>>(row);
         for (size_t y = 0; y < row; y++)
             data[y] = std::vector<T>(col);
+
+        FillRandomDouble(typename std::is_same<T, double>::type());
     }
 
     // setter
@@ -67,12 +69,17 @@ public:
         return result;
     }
 
-    Matrix<T>& operator+=(const Matrix<T>& other) {
-        if (rows != other.rows || cols != other.cols) {
-            throw std::invalid_argument("Matrix::operator+=: matrices sizes do not match");
+    Matrix<T> &operator+=(const Matrix<T> &other)
+    {
+        if (rows != other.rows || cols != other.cols)
+        {
+            throw std::invalid_argument(
+                "Matrix::operator+=: matrices sizes do not match");
         }
-        for (size_t i = 0; i < rows; ++i) {
-            for (size_t j = 0; j < cols; ++j) {
+        for (size_t i = 0; i < rows; ++i)
+        {
+            for (size_t j = 0; j < cols; ++j)
+            {
                 data[i][j] += other(i, j);
             }
         }
@@ -86,28 +93,10 @@ public:
             throw std::invalid_argument(
                 "Matrix::Multiply: matrices sizes does not match");
 
-        Matrix<T> res(rows, other.cols);
-        for (size_t i = 0; i < rows; i++)
-        {
-            for (size_t j = 0; j < other.cols; j++)
-            {
-                T tmp;
-                if constexpr (is_matrix<T>::value)
-                    tmp = T(data[0][0].rows, data[0][0].cols);
-                else
-                    tmp = 0;
-
-                for (size_t k = 0; k < cols; k++)
-                {
-                    tmp += data[i][k] * other(k, j);
-                }
-                res(i, j) = tmp;
-            }
-        }
-
-        return res;
+        return multiply(other, typename is_matrix<T>::type());
     }
 
+public:
     Matrix<T> Transpose(void)
     {
         Matrix res(cols, rows);
@@ -134,9 +123,7 @@ public:
         return res;
     }
 
-
-
-    Matrix<T> Convolve(Matrix<T> kernel) const
+    Matrix<T> Correlate(Matrix<T> kernel) const
     {
         if (kernel.rows > rows || kernel.cols > cols)
             throw std::invalid_argument(
@@ -166,25 +153,111 @@ public:
         return res;
     }
 
+    Matrix<T> Convolve(Matrix<T> kernel) const
+    {
+        return Correlate(kernel.Flip());
+    }
 
-    std::string toString(void)
+    void Reshape(size_t row, size_t col)
+    {
+        this->rows = row;
+        this->cols = col;
+        data = std::vector<std::vector<T>>(row);
+        for (size_t y = 0; y < row; y++)
+            data[y] = std::vector<T>(col);
+    }
+
+    std::string ToString(void) const
+    {
+        return _toString(typename is_matrix<T>::type());
+    }
+
+// Below this is dark magic shit differnet implementation of the same
+// focking shit to handle matrices of matrices
+
+private:
+    Matrix<T> multiply(const Matrix<T> &other, std::true_type) const
+    {
+        Matrix<T> res(rows, other.cols);
+        for (size_t i = 0; i < rows; i++)
+        {
+            for (size_t j = 0; j < other.cols; j++)
+            {
+                T tmp = T(data[0][0].rows, data[0][0].cols);
+                for (size_t k = 0; k < cols; k++)
+                {
+                    tmp += data[i][k] * other(k, j);
+                }
+                res(i, j) = tmp;
+            }
+        }
+
+        return res;
+    }
+
+    Matrix<T> multiply(const Matrix<T> &other, std::false_type) const
+    {
+        Matrix<T> res(rows, other.cols);
+        for (size_t i = 0; i < rows; i++)
+        {
+            for (size_t j = 0; j < other.cols; j++)
+            {
+                T tmp = 0;
+                for (size_t k = 0; k < cols; k++)
+                {
+                    tmp += data[i][k] * other(k, j);
+                }
+                res(i, j) = tmp;
+            }
+        }
+
+        return res;
+    }
+
+    std::string _toString(std::true_type) const
     {
         std::string res;
         for (size_t row = 0; row < rows; ++row)
         {
             for (size_t col = 0; col < cols; ++col)
             {
-                if constexpr (is_matrix<T>::value)
-                {
-                    res += data[row][col].toString();
-                }
-                else
-                {
-                    res += std::to_string(data[row][col]) + " ";
-                }
+                res += "--row : " + std::to_string(row)
+                    + ", col: " + std::to_string(col) + "--\n";
+                res += data[row][col].ToString();
             }
             res += "\n";
         }
         return res;
+    }
+
+    std::string _toString(std::false_type) const
+    {
+        std::string res;
+        for (size_t row = 0; row < rows; ++row)
+        {
+            for (size_t col = 0; col < cols; ++col)
+                res += std::to_string(data[row][col]) + " ";
+
+            res += "\n";
+        }
+        return res;
+    }
+
+    void FillRandomDouble(std::false_type)
+    {}
+
+    void FillRandomDouble(std::true_type)
+    {
+        std::random_device random;
+        std::mt19937 gen(random());
+        std::uniform_real_distribution<double> distribution(0.0, 1.0);
+
+        for (size_t i = 0; i < rows; ++i)
+        {
+            for (size_t j = 0; j < cols; ++j)
+            {
+                data[i][j] = distribution(gen);
+            }
+        }
     }
 };

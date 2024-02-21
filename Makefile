@@ -1,6 +1,6 @@
 export CC = g++
 export CPPFLAGS = -Isrc
-export CXXFLAGS = -Werror -Wall -Wextra -Wvla -pedantic
+export CXXFLAGS = -Werror -Wall -Wextra -Wvla -pedantic -std=c++11
 
 BINARY = cnn
 

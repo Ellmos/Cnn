@@ -2,6 +2,19 @@
 
 #include <stdexcept>
 
+ConvolveLayer::ConvolveLayer(size_t kernel_size, size_t input_depth,
+                             size_t output_depth)
+{
+    kernels(output_depth, input_depth);
+    for (size_t row = 0; row < kernels.rows; ++row)
+    {
+        for (size_t col = 0; col < kernels.cols; ++col)
+        {
+            kernels(row, col).Reshape(kernel_size, kernel_size);
+        }
+    }
+}
+
 void *ConvolveLayer::Forward(void *input)
 {
     if (!input)
