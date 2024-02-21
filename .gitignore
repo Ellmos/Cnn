@@ -1,0 +1,9 @@
+cnn
+
+*.o
+*lib*.a
+
+.cache/
+compile_commands.json
+
+.clang-format

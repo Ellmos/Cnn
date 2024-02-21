@@ -3,7 +3,8 @@ include flags.mk
 BINARY=cnn
 OBJ = cnn.o
 
-LIBS = matrix/libmatrix.a
+LIBS = layer/liblayer.a
+	   # matrix/libmatrix.a
 	   # neural/libneural.a
 
 
@@ -16,6 +17,7 @@ include libs.mk
 
 clean: 
 	$(MAKE) -C matrix clean 
+	$(MAKE) -C layer clean 
 	$(MAKE) -C neural clean 
 	$(RM) $(OBJ)
 
