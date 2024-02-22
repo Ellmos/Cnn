@@ -2,6 +2,7 @@
 
 #include "layer/layer.hpp"
 #include "logger/logger.hpp"
+#include "matrix/matrix.hpp"
 
 using namespace std;
 
@@ -29,14 +30,25 @@ ConvolveLayer::ConvolveLayer(struct shape input_shape, size_t kernel_nbr,
     }
 }
 
-Matrix<Matrix<double>> ConvolveLayer::Forward(Matrix<Matrix<double>>input)
+Matrix<Matrix<double>> ConvolveLayer::Forward(Matrix<Matrix<double>> input)
 {
-    LOG_TRACE("ConvolveLayer::Forward")
-    return biases + kernels.DotCorrelate(input);
+    LOG_TRACE("ConvolveLayer::Forward");
+    this->input = input;
+    return biases
+        + kernels.CustomDotProduct(input, REVERSE_CORRELATE_VALID);
 }
 
 Matrix<Matrix<double>> ConvolveLayer::Backward(Matrix<Matrix<double>> output)
 {
-    LOG_TRACE("ConvolveLayer::Backward")
-    return output;
+    LOG_TRACE("ConvolveLayer::Backward");
+
+
+    Matrix<Matrix<double>> kernelsGradient = output.CustomDotProduct(
+        this->input.Transpose(), REVERSE_CORRELATE_VALID);
+
+    Matrix<Matrix<double>> inputGradient = kernels.Transpose().CustomDotProduct(
+        output, REVERSE_CONVOLVE_FULL);
+
+
+    return inputGradient;
 }

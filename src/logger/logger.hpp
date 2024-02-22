@@ -11,7 +11,7 @@ enum LogLevel
     ERROR
 };
 
-static const LogLevel level = NO_LOG;
+static const LogLevel level = TRACE;
 
 enum TextColor
 {

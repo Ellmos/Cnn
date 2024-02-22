@@ -6,9 +6,23 @@
 #include <random>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "logger/logger.hpp"
+
+enum MatrixOperation
+{
+    DOT = 0,
+    CORRELATE_VALID,
+    CORRELATE_FULL,
+    CONVOLVE_VALID,
+    CONVOLVE_FULL,
+    REVERSE_CORRELATE_VALID,
+    REVERSE_CORRELATE_FULL,
+    REVERSE_CONVOLVE_VALID,
+    REVERSE_CONVOLVE_FULL,
+};
 
 template <typename T>
 class Matrix
@@ -33,7 +47,7 @@ public:
         this->cols = 0;
     }
 
-    Matrix(size_t rows, size_t cols)
+    Matrix(size_t rows, size_t cols, bool fillRandom = true)
     {
         LOG_INFO("Matrix::constructor with %ld rows and %ld cols", rows, cols);
         this->rows = rows;
@@ -42,7 +56,8 @@ public:
         for (size_t y = 0; y < rows; y++)
             data[y] = std::vector<T>(cols);
 
-        _fillRandomDouble(typename std::is_same<T, double>::type());
+        if (fillRandom)
+            _fillRandomDouble(typename std::is_same<T, double>::type());
     }
 
     // setter
@@ -63,7 +78,8 @@ public:
 
     Matrix<T> operator+(const Matrix<T> &other) const
     {
-        LOG_TRACE("Matrix::operator+");
+        LOG_TRACE("Matrix::operator+ between (%ld, %ld) and (%ld, %ld)", rows,
+                  cols, other.rows, other.cols);
         CheckDimensionAddition(other, "operator+");
 
         Matrix<T> result(rows, cols);
@@ -76,7 +92,8 @@ public:
 
     Matrix<T> &operator+=(const Matrix<T> &other)
     {
-        LOG_TRACE("Matrix::operator+=");
+        LOG_TRACE("Matrix::operator+= between (%ld, %ld) and (%ld, %ld)", rows,
+                  cols, other.rows, other.cols);
         if (rows == 0 || cols == 0)
         {
             this->rows = other.rows;
@@ -92,31 +109,31 @@ public:
             for (size_t j = 0; j < cols; ++j)
                 data[i][j] += other(i, j);
 
-        return *this; // Return a reference to the modified matrix
+        return *this;
     }
 
     Matrix<T> operator*(const Matrix<T> &other) const
     {
-        LOG_TRACE("Matrix::operator*");
+        LOG_TRACE("Matrix::operator* between (%ld, %ld) and (%ld, %ld)", rows,
+                  cols, other.rows, other.cols);
         CheckDimensionMultiplication(other, "operator*");
 
         return _customMultiplication(other, typename is_matrix<T>::type());
     }
 
-    Matrix<T> DotCorrelate(const Matrix<T> &other) const
+    Matrix<T> CustomDotProduct(const Matrix<T> &other, MatrixOperation op) const
     {
-        LOG_TRACE("Matrix::DotCorrelate");
-        CheckDimensionMultiplication(other, "DotCorrelate");
+        LOG_TRACE("Matrix::CustomDotProduct");
+        CheckDimensionMultiplication(other, "CustomDotProduct");
 
-        return _customMultiplication(other, typename is_matrix<T>::type(),
-                                     "Correlate");
+        return _customMultiplication(other, typename is_matrix<T>::type(), op);
     }
 
-    Matrix<T> Transpose(void)
+    Matrix<T> Transpose(void) const
     {
         LOG_TRACE("Matrix::Transpose");
-        Matrix res(cols, rows);
 
+        Matrix res(cols, rows);
         for (size_t row = 0; row < rows; ++row)
             for (size_t col = 0; col < cols; ++col)
                 res(col, row) = data[row][col];
@@ -124,25 +141,22 @@ public:
         return res;
     }
 
-    Matrix<T> Flip(void)
+    Matrix<T> Flip(void) const
     {
         LOG_TRACE("Matrix::Flip");
-        Matrix res(rows, cols);
 
+        Matrix res(rows, cols);
         for (size_t row = 0; row < rows; ++row)
-        {
             for (size_t col = 0; col < cols; ++col)
-            {
                 res(row, col) = data[rows - 1 - row][cols - 1 - col];
-            }
-        }
 
         return res;
     }
 
-    Matrix<T> Correlate(const Matrix<T> &kernel) const
+    Matrix<T> Correlate(const Matrix<T> &kernel, std::string mode) const
     {
-        LOG_TRACE("Matrix::Correlate");
+        LOG_TRACE("Matrix::Correlate between (%ld, %ld) and (%ld, %ld) in %s",
+                  rows, cols, kernel.rows, kernel.cols, mode.data());
         if (kernel.rows > rows || kernel.cols > cols)
         {
             char msg[200];
@@ -152,35 +166,85 @@ public:
                          rows, cols, kernel.rows, kernel.cols);
             throw std::invalid_argument(msg);
         }
-
-        size_t res_rows = rows - kernel.rows + 1;
-        size_t res_cols = cols - kernel.cols + 1;
-        Matrix res(res_rows, res_cols);
-
-        for (size_t row = 0; row < res_rows; ++row)
+        else if (mode != "valid" && mode != "full")
         {
-            for (size_t col = 0; col < res_cols; ++col)
+            throw std::invalid_argument(
+                "Matrix::Correlate: invalid mode given: " + mode);
+        }
+
+        size_t modifier = mode == "full" ? 1 : -1;
+        size_t resRows = rows + modifier * (kernel.rows - 1);
+        size_t resCols = cols + modifier * (kernel.cols - 1);
+        Matrix res(resRows, resCols);
+
+        for (size_t resRow = 0; resRow < resRows; ++resRow)
+        {
+            for (size_t resCol = 0; resCol < resCols; ++resCol)
             {
-                T sum = 0;
-                for (size_t kRow = 0; kRow < kernel.rows; ++kRow)
-                {
-                    for (size_t kCols = 0; kCols < kernel.cols; ++kCols)
-                    {
-                        sum +=
-                            data[row + kRow][col + kCols] * kernel(kRow, kCols);
-                    }
-                }
-                res(row, col) = sum;
+                T val;
+                if (mode == "valid")
+                    val = _correlateValid(kernel, resRow, resCol);
+                else
+                    val = _correlateFull(kernel, resRow, resCol);
+
+                res(resRow, resCol) = val;
             }
         }
 
         return res;
     }
 
-    Matrix<T> Convolve(const Matrix<T> &kernel) const
+private:
+    T _correlateValid(const Matrix<T> &kernel, size_t resRow,
+                      size_t resCol) const
+    {
+        T sum = 0;
+        for (size_t kRow = 0; kRow < kernel.rows; ++kRow)
+            for (size_t kCols = 0; kCols < kernel.cols; ++kCols)
+                sum +=
+                    data[resRow + kRow][resCol + kCols] * kernel(kRow, kCols);
+
+        return sum;
+    }
+
+    T _correlateFull(const Matrix<T> &kernel, size_t resRow,
+                     size_t resCol) const
+    {
+        T sum = 0;
+
+        for (size_t row = 0; row < rows; ++row)
+        {
+            for (size_t col = 0; col < cols; ++col)
+            {
+                size_t r = resRow - row;
+                size_t c = resCol - col;
+                if (resRow >= row && resCol >= col && r < kernel.rows
+                    && c < kernel.cols)
+                {
+                    sum += data[row][col]
+                        * kernel(kernel.rows - r - 1, kernel.cols - c - 1);
+                }
+            }
+        }
+
+        return sum;
+    }
+
+public:
+    Matrix<T> Convolve(const Matrix<T> &kernel, std::string mode) const
     {
         LOG_TRACE("Matrix::Convolve");
-        return Correlate(kernel.Flip());
+        return this->Correlate(kernel.Flip(), mode);
+    }
+
+    Matrix<T> Zeros(void)
+    {
+        Matrix<T> res = Matrix(rows, cols, false);
+        for (size_t row = 0; row < rows; ++row)
+            for (size_t col = 0; col < cols; ++col)
+                res(row, col) = _zeros(data[row][col]);
+
+        return res;
     }
 
     // Not supposed to erase data
@@ -255,11 +319,24 @@ private:
 
     // Below this is dark magic shit for different implementation of the same
     // thing when T is either a Matrix or a scalar
-    Matrix<T> _customMultiplication(const Matrix<T> &other, std::true_type,
-                                    std::string op = "") const
-    {
-        // Multiplication of matrices using given operator
 
+    T _performOperation(const T &a, const T &b, MatrixOperation op) const
+    {
+        if (op == DOT)
+            return a * b;
+        else if (op == CORRELATE_VALID || op == REVERSE_CORRELATE_VALID)
+            return a.Correlate(b, "valid");
+        else if (op == CORRELATE_FULL || op == REVERSE_CORRELATE_FULL)
+            return a.Correlate(b, "full");
+        else if (op == CONVOLVE_VALID || op == REVERSE_CONVOLVE_VALID)
+            return a.Convolve(b, "valid");
+        else if (op == CONVOLVE_FULL || op == REVERSE_CONVOLVE_FULL)
+            return a.Convolve(b, "full");
+        throw std::invalid_argument("This is not possible bro");
+    }
+    Matrix<T> _customMultiplication(const Matrix<T> &other, std::true_type,
+                                    MatrixOperation op = DOT) const
+    {
         Matrix<T> res(rows, other.cols);
         for (size_t i = 0; i < rows; i++)
         {
@@ -268,10 +345,10 @@ private:
                 T tmp = T();
                 for (size_t k = 0; k < cols; k++)
                 {
-                    if (op == "Correlate")
-                        tmp += other(k, j).Correlate(data[i][k]);
+                    if (op < REVERSE_CORRELATE_VALID)
+                        tmp += _performOperation(data[i][j], other(k, j), op);
                     else
-                        tmp += data[i][k] * other(k, j);
+                        tmp += _performOperation(other(k, j), data[i][k], op);
                 }
                 res(i, j) = tmp;
             }
@@ -281,7 +358,8 @@ private:
     }
 
     Matrix<T> _customMultiplication(const Matrix<T> &other, std::false_type,
-                                    std::string op = "") const
+                                    MatrixOperation op = DOT) const
+
     {
         (void)op;
         // Multiplication of scalar using normal operation
@@ -337,8 +415,8 @@ private:
 
     void _fillRandomDouble(std::true_type)
     {
-        std::random_device random;
-        std::mt19937 gen(random());
+        std::random_device rand;
+        std::mt19937 gen(rand());
         std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
         for (size_t i = 0; i < rows; ++i)
@@ -348,5 +426,15 @@ private:
                 data[i][j] = distribution(gen);
             }
         }
+    }
+
+    T _zeros(T val, std::true_type)
+    {
+        return val.Zeros();
+    }
+
+    T _zeros(T val, std::false_type)
+    {
+        return val;
     }
 };

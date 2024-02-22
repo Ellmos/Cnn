@@ -5,9 +5,10 @@ class ConvolveLayer
     : public Layer<Matrix<Matrix<double>>, Matrix<Matrix<double>>>
 {
 public:
+    Matrix<Matrix<double>> input;
+
     Matrix<Matrix<double>> kernels;
     Matrix<Matrix<double>> biases;
-    size_t depth;
 
 public:
     ConvolveLayer(struct shape input_shape, size_t kernel_nbr,
