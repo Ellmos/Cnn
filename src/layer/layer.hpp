@@ -1,5 +1,14 @@
 #pragma once
 
+#include <cstddef>
+
+struct shape
+{
+    size_t rows;
+    size_t cols;
+    size_t depth;
+};
+
 class Layer
 {
 public:
