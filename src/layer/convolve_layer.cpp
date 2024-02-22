@@ -1,7 +1,9 @@
 #include "convolve_layer.hpp"
 
-#include <stdexcept>
 #include "layer/layer.hpp"
+#include "logger/logger.hpp"
+
+using namespace std;
 
 ConvolveLayer::ConvolveLayer(struct shape input_shape, size_t kernel_nbr,
                              size_t kernel_size)
@@ -15,39 +17,26 @@ ConvolveLayer::ConvolveLayer(struct shape input_shape, size_t kernel_nbr,
         }
     }
 
-    size_t biases_rows = input_shape.rows - kernel_size + 1;
-    size_t biases_cols = input_shape.cols - kernel_size + 1;
+    size_t biasesRows = input_shape.rows - kernel_size + 1;
+    size_t biasesCols = input_shape.cols - kernel_size + 1;
     biases = Matrix<Matrix<double>>(kernel_nbr, 1);
     for (size_t row = 0; row < biases.rows; ++row)
     {
         for (size_t col = 0; col < biases.cols; ++col)
         {
-            biases(row, col) = Matrix<double>(biases_rows, biases_cols);
+            biases(row, col) = Matrix<double>(biasesRows, biasesCols);
         }
     }
 }
 
-void *ConvolveLayer::Forward(void *input)
+Matrix<Matrix<double>> ConvolveLayer::Forward(Matrix<Matrix<double>>input)
 {
-    if (!input)
-        throw std::invalid_argument(
-            "ConvolveLayer::forward: input matrix is NULL");
-
-    Matrix<Matrix<double>> *input_matrix = (Matrix<Matrix<double>> *)input;
-
-    // Multiplication of matrices should be cross coreelation multiplication
-    Matrix<Matrix<double>> res = biases + kernels.DotCorrelate(*input_matrix);
-
-    void *tmp = &res;
-
-    return tmp;
+    LOG_TRACE("ConvolveLayer::Forward")
+    return biases + kernels.DotCorrelate(input);
 }
 
-void *ConvolveLayer::Backward(void *gradient)
+Matrix<Matrix<double>> ConvolveLayer::Backward(Matrix<Matrix<double>> output)
 {
-    if (!gradient)
-        throw std::invalid_argument(
-            "ConvolveLayer::backward: gradient matrix is NULL");
-
-    return NULL;
+    LOG_TRACE("ConvolveLayer::Backward")
+    return output;
 }

@@ -1,6 +1,18 @@
 #pragma once
 
 #include <cstdio>
+
+enum LogLevel
+{
+    NO_LOG,
+    INFO,
+    TRACE,
+    WARN,
+    ERROR
+};
+
+static const LogLevel level = NO_LOG;
+
 enum TextColor
 {
     TEXT_COLOR_BLACK,
@@ -41,17 +53,6 @@ static const char *TextColorTable[] = {
     "\x1b[97m", // TEXT_COLOR_BRIGHT_WHITE
 };
 
-enum LogLevel
-{
-    NO_LOG,
-    INFO,
-    TRACE,
-    WARN,
-    ERROR
-};
-
-static const LogLevel level = TRACE;
-
 template <typename... Args>
 void _log(const char *prefix, TextColor textColor, const char *msg,
           Args... args)
@@ -66,15 +67,23 @@ void _log(const char *prefix, TextColor textColor, const char *msg,
     puts(textBuffer);
 }
 
-#define LOG_INFO(...)                                                         \
-    if (level == INFO)                                                        \
-        _log("INFO: ", TEXT_COLOR_WHITE, __VA_ARGS__);
+#define LOG_INFO(...)                                                          \
+    if (level == INFO)                                                         \
+    {                                                                          \
+        _log("INFO: ", TEXT_COLOR_WHITE, __VA_ARGS__);                         \
+    }
 #define LOG_TRACE(...)                                                         \
     if (level >= TRACE)                                                        \
-        _log("TRACE: ", TEXT_COLOR_CYAN, __VA_ARGS__);
+    {                                                                          \
+        _log("TRACE: ", TEXT_COLOR_CYAN, __VA_ARGS__);                         \
+    }
 #define LOG_WARN(...)                                                          \
     if (level >= WARN)                                                         \
-        _log("WARN: ", TEXT_COLOR_YELLOW, __VA_ARGS__);
+    {                                                                          \
+        _log("WARN: ", TEXT_COLOR_YELLOW, __VA_ARGS__);                        \
+    }
 #define LOG_ERROR(...)                                                         \
     if (level >= ERROR)                                                        \
-        _log("ERROR: ", TEXT_COLOR_RED, __VA_ARGS__);
+    {                                                                          \
+        _log("ERROR: ", TEXT_COLOR_RED, __VA_ARGS__);                          \
+    }

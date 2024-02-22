@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdio>
+#include <iostream>
 #include <random>
 #include <stdexcept>
 #include <string>
@@ -34,7 +35,7 @@ public:
 
     Matrix(size_t rows, size_t cols)
     {
-        LOG_INFO("Matrix::constructor with %ld rows and %ld cols", rows, cols)
+        LOG_INFO("Matrix::constructor with %ld rows and %ld cols", rows, cols);
         this->rows = rows;
         this->cols = cols;
         data = std::vector<std::vector<T>>(rows);
@@ -47,7 +48,7 @@ public:
     // setter
     T &operator()(size_t row, size_t col)
     {
-        LOG_INFO("Matrix::operator()")
+        LOG_INFO("Matrix::operator()");
         CheckBounds(row, col);
         return data[row][col];
     }
@@ -55,14 +56,14 @@ public:
     // getter
     const T &operator()(size_t row, size_t col) const
     {
-        LOG_INFO("Matrix::operator()")
+        LOG_INFO("Matrix::operator()");
         CheckBounds(row, col);
         return this->data[row][col];
     }
 
     Matrix<T> operator+(const Matrix<T> &other) const
     {
-        LOG_TRACE("Matrix::operator+")
+        LOG_TRACE("Matrix::operator+");
         CheckDimensionAddition(other, "operator+");
 
         Matrix<T> result(rows, cols);
@@ -75,7 +76,16 @@ public:
 
     Matrix<T> &operator+=(const Matrix<T> &other)
     {
-        LOG_TRACE("Matrix::operator+=")
+        LOG_TRACE("Matrix::operator+=");
+        if (rows == 0 || cols == 0)
+        {
+            this->rows = other.rows;
+            this->cols = other.cols;
+            data = std::vector<std::vector<T>>(rows);
+            for (size_t y = 0; y < rows; y++)
+                data[y] = std::vector<T>(cols);
+        }
+
         CheckDimensionAddition(other, "operator+=");
 
         for (size_t i = 0; i < rows; ++i)
@@ -87,7 +97,7 @@ public:
 
     Matrix<T> operator*(const Matrix<T> &other) const
     {
-        LOG_TRACE("Matrix::operator*")
+        LOG_TRACE("Matrix::operator*");
         CheckDimensionMultiplication(other, "operator*");
 
         return _customMultiplication(other, typename is_matrix<T>::type());
@@ -95,7 +105,7 @@ public:
 
     Matrix<T> DotCorrelate(const Matrix<T> &other) const
     {
-        LOG_TRACE("Matrix::DotCorrelate")
+        LOG_TRACE("Matrix::DotCorrelate");
         CheckDimensionMultiplication(other, "DotCorrelate");
 
         return _customMultiplication(other, typename is_matrix<T>::type(),
@@ -104,7 +114,7 @@ public:
 
     Matrix<T> Transpose(void)
     {
-        LOG_TRACE("Matrix::Transpose")
+        LOG_TRACE("Matrix::Transpose");
         Matrix res(cols, rows);
 
         for (size_t row = 0; row < rows; ++row)
@@ -116,7 +126,7 @@ public:
 
     Matrix<T> Flip(void)
     {
-        LOG_TRACE("Matrix::Flip")
+        LOG_TRACE("Matrix::Flip");
         Matrix res(rows, cols);
 
         for (size_t row = 0; row < rows; ++row)
@@ -132,8 +142,7 @@ public:
 
     Matrix<T> Correlate(const Matrix<T> &kernel) const
     {
-
-        LOG_TRACE("Matrix::Correlate")
+        LOG_TRACE("Matrix::Correlate");
         if (kernel.rows > rows || kernel.cols > cols)
         {
             char msg[200];
@@ -170,14 +179,14 @@ public:
 
     Matrix<T> Convolve(const Matrix<T> &kernel) const
     {
-        LOG_TRACE("Matrix::Convolve")
+        LOG_TRACE("Matrix::Convolve");
         return Correlate(kernel.Flip());
     }
 
     // Not supposed to erase data
     void Reshape(size_t row, size_t col)
     {
-        LOG_TRACE("Matrix::Reshape")
+        LOG_TRACE("Matrix::Reshape");
         this->rows = row;
         this->cols = col;
         data = std::vector<std::vector<T>>(row);
@@ -187,13 +196,13 @@ public:
 
     std::string ToString(void) const
     {
-        LOG_TRACE("Matrix::ToString")
+        LOG_INFO("Matrix::ToString");
         return _toString(typename is_matrix<T>::type());
     }
 
     std::string Info(void) const
     {
-        LOG_TRACE("Matrix::Info")
+        LOG_INFO("Matrix::Info");
         char buf[100];
         std::sprintf(buf, "Matrix has %ld rows and %ld columns\n", rows, cols);
         return buf;
@@ -233,7 +242,7 @@ private:
     void CheckDimensionMultiplication(const Matrix<T> &other,
                                       const char *function) const
     {
-        if (rows != other.rows || cols != other.cols)
+        if (cols != other.rows)
         {
             char msg[200];
             std::sprintf(msg,
@@ -256,11 +265,11 @@ private:
         {
             for (size_t j = 0; j < other.cols; j++)
             {
-                T tmp = T(data[0][0].rows, data[0][0].cols);
+                T tmp = T();
                 for (size_t k = 0; k < cols; k++)
                 {
                     if (op == "Correlate")
-                        tmp += data[i][k].Correlate(other(k, j));
+                        tmp += other(k, j).Correlate(data[i][k]);
                     else
                         tmp += data[i][k] * other(k, j);
                 }
