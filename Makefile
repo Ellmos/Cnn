@@ -11,6 +11,7 @@ $(BINARY):
 	mv src/$(BINARY) .
 
 run: $(BINARY)
+	@echo "----------------------------------------"
 	@./$(BINARY)
 
 

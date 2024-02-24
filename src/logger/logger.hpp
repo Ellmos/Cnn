@@ -4,14 +4,14 @@
 
 enum LogLevel
 {
-    NO_LOG,
-    INFO,
-    TRACE,
+    NO_LOG = 0,
+    ERROR,
     WARN,
-    ERROR
+    TRACE,
+    INFO,
 };
 
-static const LogLevel level = TRACE;
+static const LogLevel level = WARN;
 
 enum TextColor
 {
@@ -68,7 +68,7 @@ void _log(const char *prefix, TextColor textColor, const char *msg,
 }
 
 #define LOG_INFO(...)                                                          \
-    if (level == INFO)                                                         \
+    if (level >= INFO)                                                         \
     {                                                                          \
         _log("INFO: ", TEXT_COLOR_WHITE, __VA_ARGS__);                         \
     }

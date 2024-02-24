@@ -32,23 +32,39 @@ ConvolveLayer::ConvolveLayer(struct shape input_shape, size_t kernel_nbr,
 
 Matrix<Matrix<double>> ConvolveLayer::Forward(Matrix<Matrix<double>> input)
 {
+    size_t inputRows = biases(0, 0).rows + kernels(0, 0).rows - 1;
+    size_t inputCols = biases(0, 0).cols + kernels(0, 0).cols - 1;
+
+    if (input.rows != kernels.cols || input.cols != 1
+        || input(0, 0).rows != inputRows || input(0, 0).cols != inputCols)
+        throw invalid_argument("ConvolveLayer::Forward: input matrix does not "
+                               "match the shape of the layer");
+
     LOG_TRACE("ConvolveLayer::Forward");
     this->input = input;
-    return biases
-        + kernels.CustomDotProduct(input, REVERSE_CORRELATE_VALID);
+    return biases + kernels.CustomDotProduct(input, REVERSE_CORRELATE_VALID);
 }
 
-Matrix<Matrix<double>> ConvolveLayer::Backward(Matrix<Matrix<double>> output)
+Matrix<Matrix<double>>
+ConvolveLayer::Backward(Matrix<Matrix<double>> outputGradient)
 {
+    Matrix<double> tmp = outputGradient(0, 0);
+    if (outputGradient.rows != kernels.rows || outputGradient.cols != 1
+        || tmp.rows != biases(0, 0).rows || tmp.cols != biases(0, 0).cols)
+        throw invalid_argument("ConvolveLayer::backward: outputGradient matrix does not "
+                               "match the shape of the layer");
+
     LOG_TRACE("ConvolveLayer::Backward");
 
-
-    Matrix<Matrix<double>> kernelsGradient = output.CustomDotProduct(
+    Matrix<Matrix<double>> kernelsGradient = outputGradient.CustomDotProduct(
         this->input.Transpose(), REVERSE_CORRELATE_VALID);
 
     Matrix<Matrix<double>> inputGradient = kernels.Transpose().CustomDotProduct(
-        output, REVERSE_CONVOLVE_FULL);
+        outputGradient, REVERSE_CONVOLVE_FULL);
 
+    double learningRate = 0.5;
+    this->kernels -= kernelsGradient * learningRate;
+    this->biases -= outputGradient * learningRate;
 
     return inputGradient;
 }
