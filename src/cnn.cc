@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include "layer/convolve_layer.hpp"
-#include "layer/pooling_layer.hpp"
-#include "layer/dense_layer.hpp"
-#include "layer/flatten_layer.hpp"
-#include "matrix/matrix.hpp"
+#include "layer/convolve_layer.hh"
+#include "layer/dense_layer.hh"
+#include "layer/flatten_layer.hh"
+#include "layer/pooling_layer.hh"
+#include "matrix/matrix.hh"
 
 using namespace std;
 
@@ -19,7 +19,7 @@ int main(void)
     ConvolveLayer convolveLayer2({ 13, 13, 32 }, 64, 3);
     PoolingLayer poolLayer2(2, 2);
     ConvolveLayer convolveLayer3({ 5, 5, 64 }, 64, 3);
-    FlattenLayer flattenLayer1({3, 3, 64});
+    FlattenLayer flattenLayer1({ 3, 3, 64 });
     DenseLayer denseLayer1(576, 64);
     DenseLayer denseLayer2(64, 10);
 

@@ -1,5 +1,5 @@
-#include "layer.hpp"
-#include "matrix/matrix.hpp"
+#include "layer.hh"
+#include "matrix/matrix.hh"
 
 class FlattenLayer : public Layer<Matrix<Matrix<double>>, Matrix<double>>
 {

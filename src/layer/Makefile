@@ -1,13 +1,13 @@
 include ../flags.mk
 
 MODULE = layer
-SRC = convolve_layer.cpp \
-	  dense_layer.cpp \
-	  pooling_layer.cpp \
-	  activation_layer.cpp \
-	  flatten_layer.cpp
+SRC = convolve_layer.cc \
+	  dense_layer.cc \
+	  pooling_layer.cc \
+	  activation_layer.cc \
+	  flatten_layer.cc
 
-OBJ = $(SRC:.cpp=.o)
+OBJ = $(SRC:.cc=.o)
 LIB = lib$(MODULE).a
 
 

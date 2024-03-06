@@ -1,9 +1,9 @@
-#include "pooling_layer.hpp"
+#include "pooling_layer.hh"
 
 #include <stdexcept>
 
-#include "logger/logger.hpp"
-#include "matrix/matrix.hpp"
+#include "logger/logger.hh"
+#include "matrix/matrix.hh"
 
 using namespace std;
 
@@ -17,9 +17,10 @@ Matrix<Matrix<double>> PoolingLayer::Forward(Matrix<Matrix<double>> input)
 {
     LOG_TRACE("PoolingLayer::Forward");
 
-    Matrix<Matrix<double>> res = Matrix<Matrix<double>>(input.rows, input.cols);
-    for (size_t row = 0; row < input.rows; ++row)
-        for (size_t col = 0; col < input.cols; ++col)
+    Matrix<Matrix<double>> res =
+        Matrix<Matrix<double>>(input.getRows(), input.getCols());
+    for (size_t row = 0; row < input.getRows(); ++row)
+        for (size_t col = 0; col < input.getCols(); ++col)
             res(row, col) = input(row, col).Pool(this->poolSize, this->stride);
 
     this->input = input;
@@ -31,18 +32,19 @@ Matrix<Matrix<double>> PoolingLayer::Forward(Matrix<Matrix<double>> input)
 Matrix<double> PoolingLayer::UnPool(Matrix<double> input,
                                     Matrix<double> outputGradient)
 {
-    if (outputGradient.rows != pool(0, 0).rows
-        || outputGradient.cols != pool(0, 0).cols)
+    if (outputGradient.getRows() != pool(0, 0).getRows()
+        || outputGradient.getCols() != pool(0, 0).getCols())
         throw invalid_argument("PollingLayer::Backward: outputGradient matrix "
                                "does not match the size of the pool");
 
     LOG_INFO("PoolingLayer::UnPool");
 
-    Matrix<double> gradient = Matrix<double>(input.rows, input.cols, false);
+    Matrix<double> gradient =
+        Matrix<double>(input.getRows(), input.getCols(), false);
 
-    for (size_t oRow = 0; oRow < outputGradient.rows; ++oRow)
+    for (size_t oRow = 0; oRow < outputGradient.getRows(); ++oRow)
     {
-        for (size_t oCol = 0; oCol < outputGradient.cols; ++oCol)
+        for (size_t oCol = 0; oCol < outputGradient.getCols(); ++oCol)
         {
             // cout << "-----------\n";
             double value = outputGradient(oRow, oCol);
@@ -72,9 +74,10 @@ PoolingLayer::Backward(Matrix<Matrix<double>> outputGradient)
 {
     LOG_TRACE("PoolingLayer::Backward");
 
-    Matrix<Matrix<double>> res = Matrix<Matrix<double>>(input.rows, input.cols);
-    for (size_t row = 0; row < input.rows; ++row)
-        for (size_t col = 0; col < input.cols; ++col)
+    Matrix<Matrix<double>> res =
+        Matrix<Matrix<double>>(input.getRows(), input.getCols());
+    for (size_t row = 0; row < input.getRows(); ++row)
+        for (size_t col = 0; col < input.getCols(); ++col)
             res(row, col) = UnPool(input(row, col), outputGradient(row, col));
 
     return res;

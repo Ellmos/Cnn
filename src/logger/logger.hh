@@ -34,7 +34,7 @@ enum TextColor
 };
 
 // No array designators so don't change order in this or it will go kaput :(
-static const char *TextColorTable[] = {
+static const char* TextColorTable[] = {
     "\x1b[30m", // TEXT_COLOR_BLACK
     "\x1b[31m", // TEXT_COLOR_RED
     "\x1b[32m", // TEXT_COLOR_GREEN
@@ -54,7 +54,7 @@ static const char *TextColorTable[] = {
 };
 
 template <typename... Args>
-void _log(const char *prefix, TextColor textColor, const char *msg,
+void _log(const char* prefix, TextColor textColor, const char* msg,
           Args... args)
 {
     char formatBuffer[8192] = {};

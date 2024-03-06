@@ -1,7 +1,7 @@
-#include "flatten_layer.hpp"
+#include "flatten_layer.hh"
 
-#include "logger/logger.hpp"
-#include "matrix/matrix.hpp"
+#include "logger/logger.hh"
+#include "matrix/matrix.hh"
 
 using namespace std;
 
@@ -13,9 +13,9 @@ FlattenLayer::FlattenLayer(struct shape input_shape)
 
 Matrix<double> FlattenLayer::Forward(Matrix<Matrix<double>> input)
 {
-    if (input.rows != input_shape.depth || input.cols != 1
-        || input(0, 0).rows != input_shape.rows
-        || input(0, 0).cols != input_shape.cols)
+    if (input.getRows() != input_shape.depth || input.getCols() != 1
+        || input(0, 0).getRows() != input_shape.rows
+        || input(0, 0).getCols() != input_shape.cols)
         throw invalid_argument("FlattenLayer::Forward: input matrix does not "
                                "match the shape of the layer");
 
@@ -39,9 +39,9 @@ Matrix<double> FlattenLayer::Forward(Matrix<Matrix<double>> input)
 
 Matrix<Matrix<double>> FlattenLayer::Backward(Matrix<double> outputGradient)
 {
-    if (outputGradient.rows
+    if (outputGradient.getRows()
             != input_shape.depth * input_shape.cols * input_shape.rows
-        || outputGradient.cols != 1)
+        || outputGradient.getCols() != 1)
         throw invalid_argument("FlattenLayer::Backward: outputGradient matrix "
                                "does not match the shape of the layer");
     LOG_TRACE("FlattenLayer::Backward");
