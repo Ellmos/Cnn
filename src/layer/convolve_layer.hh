@@ -1,3 +1,5 @@
+#pragma once
+
 #include "layer.hh"
 #include "matrix/matrix.hh"
 
@@ -11,9 +13,11 @@ public:
     Matrix<Matrix<double>> biases;
 
 public:
-    ConvolveLayer(struct shape input_shape, size_t kernel_nbr,
-                  size_t kernel_size);
+    ConvolveLayer(struct shape input_shape, const size_t& kernel_nbr,
+                  const size_t& kernel_size);
 
-    Matrix<Matrix<double>> Forward(Matrix<Matrix<double>> input) override;
-    Matrix<Matrix<double>> Backward(Matrix<Matrix<double>> output) override;
+    Matrix<Matrix<double>>
+    Forward(const Matrix<Matrix<double>>& input) override;
+    Matrix<Matrix<double>>
+    Backward(const Matrix<Matrix<double>>& output) override;
 };

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "layer.hh"
 #include "matrix/matrix.hh"
 
@@ -12,10 +14,12 @@ public:
     Matrix<Matrix<double>> pool;
 
 public:
-    PoolingLayer(size_t poolingSize, size_t stride);
+    PoolingLayer(const size_t& poolingSize, const size_t& stride);
 
-    Matrix<Matrix<double>> Forward(Matrix<Matrix<double>> input) override;
-    Matrix<Matrix<double>> Backward(Matrix<Matrix<double>> output) override;
+    Matrix<Matrix<double>>
+    Forward(const Matrix<Matrix<double>>& input) override;
+    Matrix<Matrix<double>>
+    Backward(const Matrix<Matrix<double>>& output) override;
 
 private:
     Matrix<double> UnPool(Matrix<double> mat, Matrix<double> gradient);

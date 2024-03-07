@@ -5,13 +5,13 @@
 
 using namespace std;
 
-FlattenLayer::FlattenLayer(struct shape input_shape)
+FlattenLayer::FlattenLayer(const shape& input_shape)
 {
     this->input_shape = input_shape;
     this->output_size = input_shape.depth * input_shape.rows * input_shape.cols;
 }
 
-Matrix<double> FlattenLayer::Forward(Matrix<Matrix<double>> input)
+Matrix<double> FlattenLayer::Forward(const Matrix<Matrix<double>>& input)
 {
     if (input.getRows() != input_shape.depth || input.getCols() != 1
         || input(0, 0).getRows() != input_shape.rows
@@ -37,7 +37,8 @@ Matrix<double> FlattenLayer::Forward(Matrix<Matrix<double>> input)
     return res;
 }
 
-Matrix<Matrix<double>> FlattenLayer::Backward(Matrix<double> outputGradient)
+Matrix<Matrix<double>>
+FlattenLayer::Backward(const Matrix<double>& outputGradient)
 {
     if (outputGradient.getRows()
             != input_shape.depth * input_shape.cols * input_shape.rows

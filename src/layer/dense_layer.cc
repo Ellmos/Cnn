@@ -5,13 +5,13 @@
 
 using namespace std;
 
-DenseLayer::DenseLayer(size_t input_size, size_t output_size)
+DenseLayer::DenseLayer(const size_t& input_size, const size_t& output_size)
 {
     weights = Matrix<double>(output_size, input_size);
     biases = Matrix<double>(output_size, 1);
 }
 
-Matrix<double> DenseLayer::Forward(Matrix<double> input)
+Matrix<double> DenseLayer::Forward(const Matrix<double>& input)
 {
     if (input.getRows() != weights.getCols() || input.getCols() != 1)
         throw invalid_argument("DenseLayer::Forward: input matrix does not "
@@ -22,7 +22,7 @@ Matrix<double> DenseLayer::Forward(Matrix<double> input)
     return weights * input + biases;
 }
 
-Matrix<double> DenseLayer::Backward(Matrix<double> outputGradient)
+Matrix<double> DenseLayer::Backward(const Matrix<double>& outputGradient)
 {
     if (outputGradient.getRows() != weights.getRows()
         || outputGradient.getCols() != 1)

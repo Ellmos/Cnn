@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "layer/activation/relu.hh"
 #include "layer/convolve_layer.hh"
 #include "layer/dense_layer.hh"
 #include "layer/flatten_layer.hh"
@@ -15,6 +16,7 @@ int main(void)
     input(1, 0) = Matrix<double>(28, 28);
 
     ConvolveLayer convolveLayer1({ 28, 28, 2 }, 32, 3);
+    Relu<Matrix<double>> activationLayer1;
     PoolingLayer poolLayer1(2, 2);
     ConvolveLayer convolveLayer2({ 13, 13, 32 }, 64, 3);
     PoolingLayer poolLayer2(2, 2);
@@ -27,32 +29,54 @@ int main(void)
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "-----------\n";
+    res = activationLayer1.Forward(res);
+    cout << res.Info();
+    cout << res(0, 0).Info();
+
+    std::cout << "-----------\n";
     res = poolLayer1.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "-----------\n";
     res = convolveLayer2.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "-----------\n";
+    res = activationLayer1.Forward(res);
+    cout << res.Info();
+    cout << res(0, 0).Info();
+
+    std::cout << "-----------\n";
     res = poolLayer2.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "-----------\n";
     res = convolveLayer3.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "-----------\n";
+    res = activationLayer1.Forward(res);
+    cout << res.Info();
+    cout << res(0, 0).Info();
+
+    std::cout << "-----------\n";
     Matrix<double> res2 = flattenLayer1.Forward(res);
     cout << res2.Info();
 
+    std::cout << "-----------\n";
     res2 = denseLayer1.Forward(res2);
     cout << res2.Info();
 
+    std::cout << "-----------\n";
     res2 = denseLayer2.Forward(res2);
     cout << res2.Info();
 
-    cout << "-----------------------------------" << endl;
+    cout << "-----------------------------------\n";
 
     res2 = denseLayer2.Backward(res2);
     cout << res2.Info();

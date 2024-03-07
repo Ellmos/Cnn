@@ -6,8 +6,8 @@
 
 using namespace std;
 
-ConvolveLayer::ConvolveLayer(struct shape input_shape, size_t kernel_nbr,
-                             size_t kernel_size)
+ConvolveLayer::ConvolveLayer(struct shape input_shape, const size_t& kernel_nbr,
+                             const size_t& kernel_size)
 {
     kernels = Matrix<Matrix<double>>(kernel_nbr, input_shape.depth);
     for (size_t row = 0; row < kernels.getRows(); ++row)
@@ -30,7 +30,8 @@ ConvolveLayer::ConvolveLayer(struct shape input_shape, size_t kernel_nbr,
     }
 }
 
-Matrix<Matrix<double>> ConvolveLayer::Forward(Matrix<Matrix<double>> input)
+Matrix<Matrix<double>>
+ConvolveLayer::Forward(const Matrix<Matrix<double>>& input)
 {
     size_t inputRows = biases(0, 0).getRows() + kernels(0, 0).getRows() - 1;
     size_t inputCols = biases(0, 0).getCols() + kernels(0, 0).getCols() - 1;
@@ -47,7 +48,7 @@ Matrix<Matrix<double>> ConvolveLayer::Forward(Matrix<Matrix<double>> input)
 }
 
 Matrix<Matrix<double>>
-ConvolveLayer::Backward(Matrix<Matrix<double>> outputGradient)
+ConvolveLayer::Backward(const Matrix<Matrix<double>>& outputGradient)
 {
     Matrix<double> tmp = outputGradient(0, 0);
     if (outputGradient.getRows() != kernels.getRows()

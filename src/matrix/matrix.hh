@@ -60,7 +60,10 @@ public:
     Matrix<T> Correlate(const Matrix<T>& kernel, std::string mode) const;
     Matrix<T> Convolve(const Matrix<T>& kernel, std::string mode) const;
     Matrix<T> Pool(const size_t& poolSize, const size_t& stride);
+    Matrix<T> Copy() const;
     Matrix<T> Zeros();
+    template <typename FUN>
+    Matrix<T> Map(FUN fun);
     std::string ToString() const;
     std::string Info() const;
 

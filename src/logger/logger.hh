@@ -11,7 +11,7 @@ enum LogLevel
     INFO,
 };
 
-static const LogLevel level = WARN;
+static const LogLevel level = NO_LOG;
 
 enum TextColor
 {

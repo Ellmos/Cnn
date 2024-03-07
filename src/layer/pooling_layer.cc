@@ -7,23 +7,26 @@
 
 using namespace std;
 
-PoolingLayer::PoolingLayer(size_t poolSize, size_t stride)
+PoolingLayer::PoolingLayer(const size_t& poolSize, const size_t& stride)
 {
     this->poolSize = poolSize;
     this->stride = stride;
 }
 
-Matrix<Matrix<double>> PoolingLayer::Forward(Matrix<Matrix<double>> input)
+Matrix<Matrix<double>>
+PoolingLayer::Forward(const Matrix<Matrix<double>>& input)
 {
     LOG_TRACE("PoolingLayer::Forward");
+
+    this->input = input.Copy();
 
     Matrix<Matrix<double>> res =
         Matrix<Matrix<double>>(input.getRows(), input.getCols());
     for (size_t row = 0; row < input.getRows(); ++row)
         for (size_t col = 0; col < input.getCols(); ++col)
-            res(row, col) = input(row, col).Pool(this->poolSize, this->stride);
+            res(row, col) =
+                this->input(row, col).Pool(this->poolSize, this->stride);
 
-    this->input = input;
     this->pool = res;
 
     return res;
@@ -70,7 +73,7 @@ Matrix<double> PoolingLayer::UnPool(Matrix<double> input,
 }
 
 Matrix<Matrix<double>>
-PoolingLayer::Backward(Matrix<Matrix<double>> outputGradient)
+PoolingLayer::Backward(const Matrix<Matrix<double>>& outputGradient)
 {
     LOG_TRACE("PoolingLayer::Backward");
 

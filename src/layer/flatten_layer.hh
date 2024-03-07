@@ -1,3 +1,5 @@
+#pragma once
+
 #include "layer.hh"
 #include "matrix/matrix.hh"
 
@@ -8,8 +10,9 @@ public:
     size_t output_size;
 
 public:
-    FlattenLayer(struct shape input_shape);
+    FlattenLayer(const shape& input_shape);
 
-    Matrix<double> Forward(Matrix<Matrix<double>> input) override;
-    Matrix<Matrix<double>> Backward(Matrix<double> outputGradient) override;
+    Matrix<double> Forward(const Matrix<Matrix<double>>& input) override;
+    Matrix<Matrix<double>>
+    Backward(const Matrix<double>& outputGradient) override;
 };

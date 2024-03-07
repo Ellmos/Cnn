@@ -131,8 +131,30 @@ Matrix<T> Matrix<T>::Pool(const size_t& poolSize, const size_t& stride)
 }
 
 template <typename T>
+Matrix<T> Matrix<T>::Copy() const
+{
+    LOG_TRACE("Matrix::Copy");
+    Matrix<T> res = Matrix(rows_, cols_, false);
+
+    res.setRows(rows_);
+    res.setCols(cols_);
+    for (size_t row = 0; row < rows_; ++row)
+    {
+        for (size_t col = 0; col < cols_; ++col)
+        {
+            if constexpr (is_matrix<T>::value)
+                res(row, col) = data_[row][col].Copy();
+            else
+                res(row, col) = data_[row][col];
+        }
+    }
+    return res;
+}
+
+template <typename T>
 Matrix<T> Matrix<T>::Zeros()
 {
+    LOG_TRACE("Matrix::Zeros");
     Matrix<T> res = Matrix(rows_, cols_, false);
     for (size_t row = 0; row < rows_; ++row)
     {
@@ -143,6 +165,25 @@ Matrix<T> Matrix<T>::Zeros()
         }
     }
 
+    return res;
+}
+
+template <typename T>
+template <typename FUN>
+Matrix<T> Matrix<T>::Map(FUN fun)
+{
+    LOG_TRACE("Matrix::Map");
+    Matrix<T> res = Matrix(rows_, cols_, false);
+    for (size_t row = 0; row < rows_; ++row)
+    {
+        for (size_t col = 0; col < cols_; ++col)
+        {
+            if constexpr (is_matrix<T>::value)
+                res(row, col) = data_[row][col].Map(fun);
+            else
+                res(row, col) = fun(data_[row][col]);
+        }
+    }
     return res;
 }
 
