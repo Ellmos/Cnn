@@ -1,22 +1,25 @@
-export CC = g++
-export CPPFLAGS = -Isrc
-export CXXFLAGS = -Wall -Wextra -Werror -pedantic -std=c++20 -Wold-style-cast
+BINARY=cnn
+BUILD_DIR=build
 
-BINARY = cnn
+all: target
 
-all: $(BINARY)
+target: $(BUILD_DIR)
+	cmake --build $(BUILD_DIR)
+	mv $(BUILD_DIR)/$(BINARY) .
 
-$(BINARY):
-	$(MAKE) -C src
-	mv src/$(BINARY) .
+$(BUILD_DIR):
+	cmake -D CMAKE_BUILD_TYPE=Debug -B $(BUILD_DIR)
 
-run: $(BINARY)
-	@echo "----------------------------------------"
-	@./$(BINARY)
 
+run: target
+	./$(BINARY)
 
 clean:
-	$(MAKE) -C src clean
 	$(RM) $(BINARY)
+	$(MAKE) -C $(BUILD_DIR) clean
 
-.PHONY: all clean run $(BINARY)
+dist-clean:
+	$(RM) $(BINARY)
+	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean run dist-clean $(BINARY) $(BUILD_DIR)
