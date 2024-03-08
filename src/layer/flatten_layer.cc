@@ -11,7 +11,7 @@ FlattenLayer::FlattenLayer(const shape& inputShape)
     this->output_size = inputShape.depth * inputShape.rows * inputShape.cols;
 }
 
-Matrix<double> FlattenLayer::Forward(const Matrix<Matrix<double>>& input)
+Mat FlattenLayer::Forward(const Mat& input)
 {
     if (input.getRows() != inputShape.depth || input.getCols() != 1
         || input(0, 0).getRows() != inputShape.rows
@@ -34,20 +34,22 @@ Matrix<double> FlattenLayer::Forward(const Matrix<Matrix<double>>& input)
             }
         }
     }
-    return res;
+
+    Mat tmp = Mat(1, 1, false);
+    tmp(0, 0) = res;
+    return tmp;
 }
 
-Matrix<Matrix<double>>
-FlattenLayer::Backward(const Matrix<double>& outputGradient)
+Mat FlattenLayer::Backward(const Mat& outputGradient)
 {
-    if (outputGradient.getRows()
-            != inputShape.depth * inputShape.cols * inputShape.rows
-        || outputGradient.getCols() != 1)
+    const Matrix<double>& inner = outputGradient(0, 0);
+    if (inner.getRows() != inputShape.depth * inputShape.cols * inputShape.rows
+        || inner.getCols() != 1)
         throw invalid_argument("FlattenLayer::Backward: outputGradient matrix "
                                "does not match the shape of the layer");
     LOG_TRACE("FlattenLayer::Backward");
 
-    Matrix<Matrix<double>> res = Matrix<Matrix<double>>(inputShape.depth, 1);
+    Mat res = Mat(inputShape.depth, 1, false);
     size_t i = 0;
     for (size_t mat = 0; mat < inputShape.depth; ++mat)
     {
@@ -57,7 +59,7 @@ FlattenLayer::Backward(const Matrix<double>& outputGradient)
         {
             for (size_t col = 0; col < inputShape.cols; ++col)
             {
-                tmp(row, col) = outputGradient(i, 0);
+                tmp(row, col) = inner(i, 0);
                 ++i;
             }
         }

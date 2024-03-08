@@ -2,14 +2,13 @@
 
 #include "activation_layer.hh"
 
-template <typename T>
-class Relu : public ActivationLayer<T>
+class Relu : public ActivationLayer
 {
 public:
     Relu()
     {}
 
-    Matrix<T> Forward(const Matrix<T>& input) override
+    Mat Forward(const Mat& input) override
     {
         LOG_TRACE("Softmax::Forward");
         this->input = input.Copy();
@@ -17,11 +16,11 @@ public:
         return input;
     }
 
-    Matrix<T> Backward(const Matrix<T>& outputGradient) override
+    Mat Backward(const Mat& outputGradient) override
     {
         LOG_TRACE("Softmax::Backward");
         return outputGradient.Copy().Map(
-            [this](const double& i) { return i > 0 ? 1 : 0; });
+            [](const double& i) { return i > 0 ? 1 : 0; });
     }
 };
 

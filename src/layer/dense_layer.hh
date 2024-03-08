@@ -1,19 +1,18 @@
 #pragma once
 
 #include "layer.hh"
-#include "matrix/matrix.hh"
 
-class DenseLayer : public Layer<Matrix<double>, Matrix<double>>
+class DenseLayer : public Layer
 {
 public:
-    Matrix<double> input;
+    Mat input;
 
-    Matrix<double> weights;
-    Matrix<double> biases;
+    Mat weights = Mat(1, 1, false);
+    Mat biases = Mat(1, 1, false);
 
 public:
     DenseLayer(const size_t& input_size, const size_t& output_size);
 
-    Matrix<double> Forward(const Matrix<double>& input) override;
-    Matrix<double> Backward(const Matrix<double>& outputGradient) override;
+    Mat Forward(const Mat& input) override;
+    Mat Backward(const Mat& outputGradient) override;
 };

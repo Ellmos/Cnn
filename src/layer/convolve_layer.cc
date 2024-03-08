@@ -9,7 +9,7 @@ using namespace std;
 ConvolveLayer::ConvolveLayer(struct shape input_shape, const size_t& kernel_nbr,
                              const size_t& kernel_size)
 {
-    kernels = M(kernel_nbr, input_shape.depth);
+    kernels = Mat(kernel_nbr, input_shape.depth);
     for (size_t row = 0; row < kernels.getRows(); ++row)
     {
         for (size_t col = 0; col < kernels.getCols(); ++col)
@@ -20,7 +20,7 @@ ConvolveLayer::ConvolveLayer(struct shape input_shape, const size_t& kernel_nbr,
 
     size_t biasesRows = input_shape.rows - kernel_size + 1;
     size_t biasesCols = input_shape.cols - kernel_size + 1;
-    biases = M(kernel_nbr, 1);
+    biases = Mat(kernel_nbr, 1);
     for (size_t row = 0; row < biases.getRows(); ++row)
     {
         for (size_t col = 0; col < biases.getCols(); ++col)
@@ -30,7 +30,7 @@ ConvolveLayer::ConvolveLayer(struct shape input_shape, const size_t& kernel_nbr,
     }
 }
 
-M ConvolveLayer::Forward(const M& input)
+Mat ConvolveLayer::Forward(const Mat& input)
 {
     size_t inputRows = biases(0, 0).getRows() + kernels(0, 0).getRows() - 1;
     size_t inputCols = biases(0, 0).getCols() + kernels(0, 0).getCols() - 1;
@@ -46,7 +46,7 @@ M ConvolveLayer::Forward(const M& input)
     return biases + kernels.CustomDotProduct(input, REVERSE_CORRELATE_VALID);
 }
 
-M ConvolveLayer::Backward(const M& outputGradient)
+Mat ConvolveLayer::Backward(const Mat& outputGradient)
 {
     Matrix<double> tmp = outputGradient(0, 0);
     if (outputGradient.getRows() != kernels.getRows()
@@ -59,10 +59,10 @@ M ConvolveLayer::Backward(const M& outputGradient)
 
     LOG_TRACE("ConvolveLayer::Backward");
 
-    M kernelsGradient = outputGradient.CustomDotProduct(
+    Mat kernelsGradient = outputGradient.CustomDotProduct(
         this->input.Transpose(), REVERSE_CORRELATE_VALID);
 
-    M inputGradient = kernels.Transpose().CustomDotProduct(
+    Mat inputGradient = kernels.Transpose().CustomDotProduct(
         outputGradient, REVERSE_CONVOLVE_FULL);
 
     double learningRate = 0.5;

@@ -19,7 +19,7 @@ int main()
     // neural.AddLayer(ConvolveLayer({ 25, 25, 2 }, 32, 2));
 
     ConvolveLayer convolveLayer1({ 28, 28, 2 }, 32, 3);
-    Relu<Matrix<double>> activationLayer1;
+    Relu activationLayer1;
     PoolingLayer poolLayer1(2, 2);
     ConvolveLayer convolveLayer2({ 13, 13, 32 }, 64, 3);
     PoolingLayer poolLayer2(2, 2);
@@ -39,81 +39,94 @@ int main()
     cout << res.Info();
     cout << res(0, 0).Info();
 
-    std::cout << "-----------\n";
+    std::cout << "\nActivation----------\n";
     res = activationLayer1.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
-    std::cout << "-----------\n";
+    std::cout << "\nPool-----------\n";
     res = poolLayer1.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
-    std::cout << "-----------\n";
+    std::cout << "\nConvolve-----------\n";
     res = convolveLayer2.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
-    std::cout << "-----------\n";
+    std::cout << "\nActivation-----------\n";
     res = activationLayer1.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
-    std::cout << "-----------\n";
+    std::cout << "\nPool-----------\n";
     res = poolLayer2.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
-    std::cout << "-----------\n";
+    std::cout << "\nConvolve-----------\n";
     res = convolveLayer3.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
-    std::cout << "-----------\n";
+    std::cout << "\nActivation-----------\n";
     res = activationLayer1.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
-    std::cout << "-----------\n";
-    Matrix<double> res2 = flattenLayer1.Forward(res);
-    cout << res2.Info();
-
-    std::cout << "-----------\n";
-    res2 = denseLayer1.Forward(res2);
-    cout << res2.Info();
-
-    std::cout << "-----------\n";
-    res2 = denseLayer2.Forward(res2);
-    cout << res2.Info();
-
-    cout << "-----------------------------------\n";
-
-    res2 = denseLayer2.Backward(res2);
-    cout << res2.Info();
-
-    res2 = denseLayer1.Backward(res2);
-    cout << res2.Info();
-
-    res = flattenLayer1.Backward(res2);
+    std::cout << "\nFlatten-----------\n";
+    res = flattenLayer1.Forward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "\nDense-----------\n";
+    res = denseLayer1.Forward(res);
+    cout << res.Info();
+    cout << res(0, 0).Info();
+
+    std::cout << "\nDense-----------\n";
+    res = denseLayer2.Forward(res);
+    cout << res.Info();
+    cout << res(0, 0).Info();
+
+    cout << "\n\nBackward-----------------------------------\n";
+
+    std::cout << "\nDense----------\n";
+    res = denseLayer2.Backward(res);
+    cout << res.Info();
+    cout << res(0, 0).Info();
+
+    std::cout << "\nDense----------\n";
+    res = denseLayer1.Backward(res);
+    cout << res.Info();
+    cout << res(0, 0).Info();
+
+    std::cout << "\nFlatten----------\n";
+    res = flattenLayer1.Backward(res);
+    cout << res.Info();
+    cout << res(0, 0).Info();
+
+    std::cout << "\nConvolve----------\n";
     res = convolveLayer3.Backward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "\nPool----------\n";
     res = poolLayer2.Backward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "\nConvolve----------\n";
     res = convolveLayer2.Backward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "\nPool----------\n";
     res = poolLayer1.Backward(res);
     cout << res.Info();
     cout << res(0, 0).Info();
 
+    std::cout << "\nConvolve----------\n";
     res = convolveLayer1.Backward(res);
     cout << res.Info();
     cout << res(0, 0).Info();

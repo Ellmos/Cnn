@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+#include "matrix/matrix.hh"
+
 struct shape
 {
     size_t rows;
@@ -12,13 +14,14 @@ struct shape
 class LayerContainer
 {};
 
-template <typename INPUT_TYPE, typename OUTPUT_TYPE>
+using Mat = Matrix<Matrix<double>>;
+
 class Layer : public LayerContainer
 {
 public:
     shape inputShape;
 
 public:
-    virtual OUTPUT_TYPE Forward(const INPUT_TYPE& input) = 0;
-    virtual INPUT_TYPE Backward(const OUTPUT_TYPE& outputGradient) = 0;
+    virtual Mat Forward(const Mat& input) = 0;
+    virtual Mat Backward(const Mat& outputGradient) = 0;
 };

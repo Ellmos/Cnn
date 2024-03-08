@@ -23,7 +23,7 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const
 template <typename T>
 Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const
 {
-    LOG_TRACE("Matrix::operator+ between (%ld, %ld) and (%ld, %ld)", rows_,
+    LOG_TRACE("Matrix::operator- between (%ld, %ld) and (%ld, %ld)", rows_,
               cols_, other.rows_, other.cols_);
     _checkDimensionAddition(other, "operator-");
 
@@ -82,7 +82,7 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const
         {
             T tmp;
             if constexpr (is_matrix<T>::value)
-                tmp = T(data_[0][0].rows, data_[0][0].cols);
+                tmp = T(data_[0][0].getRows(), data_[0][0].getCols());
             else
                 tmp = 0;
 

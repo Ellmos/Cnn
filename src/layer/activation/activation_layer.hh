@@ -1,15 +1,13 @@
 #pragma once
 
 #include "layer/layer.hh"
-#include "matrix/matrix.hh"
 
-template <typename T>
-class ActivationLayer : public Layer<Matrix<T>, Matrix<T>>
+class ActivationLayer : public Layer
 {
 public:
-    Matrix<T> input;
+    Mat input;
 
 public:
-    virtual Matrix<T> Forward(const Matrix<T>& input) = 0;
-    virtual Matrix<T> Backward(const Matrix<T>& outputGradient) = 0;
+    virtual Mat Forward(const Mat& input) = 0;
+    virtual Mat Backward(const Mat& outputGradient) = 0;
 };
