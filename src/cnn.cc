@@ -9,11 +9,14 @@
 
 using namespace std;
 
-int main(void)
+int main()
 {
     Matrix<Matrix<double>> input(2, 1);
     input(0, 0) = Matrix<double>(28, 28);
     input(1, 0) = Matrix<double>(28, 28);
+
+    // Neural neural({ 28, 28, 2 });
+    // neural.AddLayer(ConvolveLayer({ 25, 25, 2 }, 32, 2));
 
     ConvolveLayer convolveLayer1({ 28, 28, 2 }, 32, 3);
     Relu<Matrix<double>> activationLayer1;
@@ -24,6 +27,13 @@ int main(void)
     FlattenLayer flattenLayer1({ 3, 3, 64 });
     DenseLayer denseLayer1(576, 64);
     DenseLayer denseLayer2(64, 10);
+
+    // LayerContainer* layers[9] = { &convolveLayer1, &activationLayer1,
+    //                               &poolLayer1,     &convolveLayer2,
+    //                               &poolLayer2,     &convolveLayer3,
+    //                               &flattenLayer1,  &denseLayer1,
+    //                               &denseLayer2 };
+    // size_t nbr_layers = sizeof(layers) - sizeof(layers[0]);
 
     Matrix<Matrix<double>> res = convolveLayer1.Forward(input);
     cout << res.Info();

@@ -3,21 +3,20 @@
 #include "layer.hh"
 #include "matrix/matrix.hh"
 
-class ConvolveLayer
-    : public Layer<Matrix<Matrix<double>>, Matrix<Matrix<double>>>
+using M = Matrix<Matrix<double>>;
+
+class ConvolveLayer : public Layer<M, M>
 {
 public:
-    Matrix<Matrix<double>> input;
+    M input;
 
-    Matrix<Matrix<double>> kernels;
-    Matrix<Matrix<double>> biases;
+    M kernels;
+    M biases;
 
 public:
     ConvolveLayer(struct shape input_shape, const size_t& kernel_nbr,
                   const size_t& kernel_size);
 
-    Matrix<Matrix<double>>
-    Forward(const Matrix<Matrix<double>>& input) override;
-    Matrix<Matrix<double>>
-    Backward(const Matrix<Matrix<double>>& output) override;
+    M Forward(const M& input) override;
+    M Backward(const M& output) override;
 };

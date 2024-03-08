@@ -6,7 +6,6 @@
 class FlattenLayer : public Layer<Matrix<Matrix<double>>, Matrix<double>>
 {
 public:
-    struct shape input_shape;
     size_t output_size;
 
 public:

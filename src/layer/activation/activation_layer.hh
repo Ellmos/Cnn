@@ -10,11 +10,6 @@ public:
     Matrix<T> input;
 
 public:
-    Matrix<T> Forward(const Matrix<T>& input) override;
-    Matrix<T> Backward(const Matrix<T>& outputGradient) override;
-
-    virtual double Function(const double& i) = 0;
-    virtual double Derivative(const double& i) = 0;
+    virtual Matrix<T> Forward(const Matrix<T>& input) = 0;
+    virtual Matrix<T> Backward(const Matrix<T>& outputGradient) = 0;
 };
-
-#include "activation_layer.hxx"
