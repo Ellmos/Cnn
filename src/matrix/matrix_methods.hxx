@@ -65,10 +65,9 @@ template <typename T>
 Matrix<T> Matrix<T>::Correlate(const Matrix<T>& kernel,
                                const std::string mode) const
 {
-    _checkCorrelateArgs(kernel, mode, "Correlate");
-
     LOG_TRACE("Matrix::Correlate between (%ld, %ld) and (%ld, %ld) in %s",
               rows_, cols_, kernel.rows_, kernel.cols_, mode.data());
+    _checkCorrelateArgs(kernel, mode, "Correlate");
 
     size_t modifier = mode == "full" ? 1 : -1;
     size_t resRows = rows_ + modifier * (kernel.rows_ - 1);
@@ -103,9 +102,9 @@ Matrix<T> Matrix<T>::Convolve(const Matrix<T>& kernel,
 template <typename T>
 Matrix<T> Matrix<T>::Pool(const size_t& poolSize, const size_t& stride)
 {
-    char msg[200];
     if (poolSize > rows_ || poolSize > cols_)
     {
+        char msg[200];
         std::sprintf(msg,
                      "Matrix::Pool: pool size exceeds matrix size\n"
                      "matrix: (%ld, %ld), pool size: %ld",
@@ -134,10 +133,8 @@ template <typename T>
 Matrix<T> Matrix<T>::Copy() const
 {
     LOG_TRACE("Matrix::Copy");
-    Matrix<T> res = Matrix(rows_, cols_, false);
 
-    res.setRows(rows_);
-    res.setCols(cols_);
+    Matrix<T> res = Matrix(rows_, cols_, false);
     for (size_t row = 0; row < rows_; ++row)
     {
         for (size_t col = 0; col < cols_; ++col)
@@ -191,6 +188,7 @@ template <typename T>
 std::string Matrix<T>::ToString() const
 {
     LOG_INFO("Matrix::ToString");
+
     std::string res;
     for (size_t row = 0; row < rows_; ++row)
     {
@@ -214,6 +212,7 @@ template <typename T>
 std::string Matrix<T>::Info() const
 {
     LOG_INFO("Matrix::Info");
+
     char buf[100];
     std::sprintf(buf, "Matrix has %ld rows and %ld columns\n", rows_, cols_);
     return buf;

@@ -1,5 +1,7 @@
 #include "dense_layer.hh"
 
+#include <iostream>
+
 #include "logger/logger.hh"
 #include "matrix/matrix.hh"
 
@@ -16,8 +18,10 @@ Mat DenseLayer::Forward(const Mat& input)
     if (input.getRows() != weights.getCols() || input.getCols() != 1)
         throw invalid_argument("DenseLayer::Forward: input matrix does not "
                                "match the shape of the layer");
-
     LOG_TRACE("DenseLayer::Forward");
+
+    std::cout << input.Info() << "\n";
+    std::cout << input(0, 0).Info() << "\n";
     Mat res = Mat(1, 1, false);
     this->input = input;
     res(0, 0) = weights(0, 0) * input(0, 0) + biases(0, 0);

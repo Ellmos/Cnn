@@ -1,43 +1,59 @@
 #include "neural.hh"
 
-#include "layer/convolve_layer.hh"
-#include "layer/flatten_layer.hh"
+#include <iostream>
+#include <memory>
+#include <utility>
+
+#include "logger/logger.hh"
 
 Neural::Neural(const shape input_shape)
     : input_shape(input_shape)
-    , nbrLayers(0)
-    , flattenLayer(nullptr)
 {}
 
 shape Neural::ComputePrevOutputShape()
 {
-    if (nbrLayers == 0)
+    if (layers.size() == 0)
         return input_shape;
     return input_shape;
 }
 
-void setFlattenLayer(FlattenLayer layer)
+void Neural::AddLayer(std::unique_ptr<Layer> layer)
 {
-    (void)layer;
+    LOG_TRACE("Neural::AddLayer");
+    layers.push_back(std::move(layer));
 }
 
-void Neural::AddLayer(ConvolveLayer layer)
+// Has to be called with at least one layer or will go kaboom
+// Not doping a check here for optimisation
+Mat Neural::Forward(const Mat& input)
 {
-    (void)layer;
+    LOG_TRACE("Neural::Forward");
+
+    Mat res = layers[0]->Forward(input);
+    for (size_t i = 1; i < layers.size(); ++i)
+    {
+        res = layers[i]->Forward(res);
+        //
+        // std::cout << "\n-------- Forward: Layer: " << i << " ----------\n";
+        // std::cout << res.Info();
+        // std::cout << res(0, 0).Info();
+    }
+    return res;
 }
 
-template <typename T>
-void Neural::AddLayer(ActivationLayer<T> layer)
+// Has to be called with at least one layer or will go kaboom
+// Not doping a check here for optimisation
+Mat Neural::Backward(const Mat& gradient)
 {
-    (void)layer;
-}
+    LOG_TRACE("Neural::Backward");
 
-void Neural::AddLayer(DenseLayer layer)
-{
-    (void)layer;
-}
-
-void Neural::AddLayer(PoolingLayer layer)
-{
-    (void)layer;
+    Mat res = layers[layers.size() - 1]->Backward(gradient);
+    for (size_t i = layers.size() - 1; i > 0; --i)
+    {
+        res = layers[i - 1]->Backward(res);
+        // std::cout << "\n--------Backward: Layer: " << i << " ----------\n";
+        // std::cout << res.Info();
+        // std::cout << res(0, 0).Info();
+    }
+    return res;
 }

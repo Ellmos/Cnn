@@ -11,17 +11,15 @@ struct shape
     size_t depth;
 };
 
-class LayerContainer
-{};
-
 using Mat = Matrix<Matrix<double>>;
 
-class Layer : public LayerContainer
+class Layer
 {
 public:
     shape inputShape;
 
 public:
+    virtual ~Layer(){};
     virtual Mat Forward(const Mat& input) = 0;
     virtual Mat Backward(const Mat& outputGradient) = 0;
 };

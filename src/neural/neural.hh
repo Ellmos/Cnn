@@ -1,32 +1,22 @@
 #pragma once
-
 #include <memory>
 #include <vector>
 
-#include "layer/activation/activation_layer.hh"
-#include "layer/convolve_layer.hh"
-#include "layer/dense_layer.hh"
 #include "layer/layer.hh"
-#include "layer/pooling_layer.hh"
+
 class Neural
 {
 public:
     shape input_shape;
-    size_t nbrLayers;
 
-    std::vector<std::unique_ptr<LayerContainer>> convolveLayers;
-    std::unique_ptr<LayerContainer> flattenLayer;
-    std::vector<std::unique_ptr<LayerContainer>> denseLayers;
+    std::vector<std::unique_ptr<Layer>> layers;
 
 public:
     Neural(const shape inputShape);
     shape ComputePrevOutputShape();
 
-    void setFlattenLayer(LayerContainer layer);
+    void AddLayer(std::unique_ptr<Layer> layer);
 
-    template <typename T>
-    void AddLayer(ActivationLayer<T> layer);
-    void AddLayer(ConvolveLayer layer);
-    void AddLayer(PoolingLayer layer);
-    void AddLayer(DenseLayer layer);
+    Mat Forward(const Mat& input);
+    Mat Backward(const Mat& gradient);
 };

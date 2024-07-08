@@ -18,7 +18,6 @@ Mat FlattenLayer::Forward(const Mat& input)
         || input(0, 0).getCols() != inputShape.cols)
         throw invalid_argument("FlattenLayer::Forward: input matrix does not "
                                "match the shape of the layer");
-
     LOG_TRACE("FlattenLayer::Forward");
 
     Matrix<double> res = Matrix<double>(output_size, 1, false);
